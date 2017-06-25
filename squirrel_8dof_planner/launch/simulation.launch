@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- define arguments -->
+  <arg name="world_name" default="room1"/>
+  <arg name="robot" default="uibk-robotino2"/>
+  <arg name="joypad" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="headless" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="false"/>
+  <arg name="rviz" default="true"/>
+  <arg name="planner" default="true"/>
+  <arg name="planning_ns" default="squirrel_8dof_planning"/>
+
+  <!-- load gazebo world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch"> 
+    <arg name="world_name" value="$(find squirrel_8dof_planner)/config/$(arg world_name).world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="paused" value="$(arg paused)" />
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)" />
+  </include>
+
+  <!-- startup simulated robot -->
+  <include file="$(find robotino_bringup_sim)/robots/$(arg robot)/$(arg robot).launch" >
+    <arg name="paused" value="$(arg paused)" /> 
+    <arg name="robot" value="$(arg robot)" />
+  </include>
+
+
+  <!-- Load a planner parameter configuration -->
+  <param name="ns_prefix_robot" value="/$(arg planning_ns)/"/>
+  <param name="robot_description_robot" value="/$(arg planning_ns)/robot_description"/>
+  <rosparam command="load" file="$(find planner_param_config)/planner_config/planner_parameters_robotino.yaml"/>
+  
+  <group ns="$(arg planning_ns)">
+    <rosparam command="load" file="$(find squirrel_8dof_planner)/config/parameters.yaml" />
+    <param name="robot_description" textfile="$(find squirrel_8dof_planner)/config/robotino_plan.urdf"/>
+    <param name="robot_description_semantic" textfile="$(find squirrel_8dof_planner)/config/robotino_plan.srdf"/>
+    <param name="robot_description_vis" textfile="$(find squirrel_8dof_planner)/config/robotino_plan_vis.urdf"/>
+    <include file="$(find squirrel_8dof_planner)/launch/move_group.launch"/>
+    <group if="$(arg planner)">
+      <node name="squirrel_8dof_planner_node" pkg="squirrel_8dof_planner" type="squirrel_8dof_planner_node" output="screen"/>
+      <node name="squirrel_8dof_visualizer_node" pkg="squirrel_8dof_visualizer" type="squirrel_8dof_visualizer_node"/>
+    </group>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world_frame_publisher" args="0 0 0 0 0 0 origin base_link_origin"/>
+  </group>
+
+
+  <!-- start joypad controller -->
+  <group if="$(arg joypad)">
+    <node name="joy_node" pkg="joy" type="joy_node"/>
+    <node name="robotino_joypad_node" pkg="robotino_joypad" type="robotino_joypad_node"/>
+  </group>
+
+  <!-- start rviz and visualization nodes -->
+  <group if="$(arg rviz)">
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find squirrel_8dof_planner)/config/config.rviz" />
+    <node name="octomap_server_node" pkg="octomap_server" type="octomap_server_node" args="$(find squirrel_8dof_planner)/config/$(arg world_name).ot"/>
+    <node name="static_transform_publisher" pkg="tf2_ros" type="static_transform_publisher" args="0.0 0.0 0.0 0.0 0.0 0.0 origin map"/>
+  </group>
+
+</launch>
