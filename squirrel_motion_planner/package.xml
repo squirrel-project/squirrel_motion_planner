@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <name>squirrel_motion_planner</name>
+  <version>0.0.0</version>
+  <description>This repository holds packages for planning and visualizing 8dof trajectories in octomaps.</description>
+
+  <license>BSD</license>
+
+  <maintainer email="philkark@cs.uni-bonn.de">Philipp Karkowski</maintainer>
+  <author email="philkark@cs.uni-bonn.de">Philipp Karkowski</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>birrt_star</run_depend>
+  <run_depend>rviz_robot_marker</run_depend>
+  <run_depend>squirrel_8dof_planner</run_depend>
+  <run_depend>squirrel_8dof_visualizer</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
