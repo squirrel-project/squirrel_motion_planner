@@ -1,0 +1,25 @@
+<package>
+  <name>robot_motion_planning</name>
+  <version>0.0.1</version>
+  <description>The robot_motion_planning metapackage</description>
+  <maintainer email="burgetf@informatik.uni-freiburg.de">burgetf</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <run_depend>birrt_star_algorithm</run_depend>
+  <run_depend>planner_data_structures</run_depend>
+  <run_depend>planner_msgs</run_depend>
+  <run_depend>planner_param_config</run_depend>
+  <run_depend>planner_statistics</run_depend>
+  <run_depend>planning_heuristics</run_depend>
+  <run_depend>planning_scenarios</run_depend>
+  <run_depend>planning_server</run_depend>
+  <run_depend>planning_world_builder</run_depend>
+  <run_depend>rrt_star_algorithm</run_depend>
+  <run_depend>validity_checker</run_depend>
+
+  <export>
+    <metapackage/> 
+  </export>
+</package>

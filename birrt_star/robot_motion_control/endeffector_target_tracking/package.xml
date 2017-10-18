@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>endeffector_target_tracking</name>
+  <version>0.0.0</version>
+  <description>The endeffector_target_tracking package</description>
+
+  <maintainer email="burgetf@informatik.uni-freiburg.de">Felix Burget</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>kuka_motion_control</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <run_depend>kuka_motion_control</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>visualization_msgs</run_depend>
+
+</package>
