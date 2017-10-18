@@ -26,6 +26,13 @@ distance_birrt_star_planning: 10.0
 #those poses are added to base poses for the part of the plan that is computed with astar
 pose_folded_arm: [-0.7, 1.9, 0.0, 1.7, 0.0]
 
+#once a trajectory is found, it is normalized such that at least one of the 8dof has a distance
+#to the previous pose given by these values and all other dofs are below
+normalized_pose_distances: [0.02, 0.02, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08]
+
+#time between poses that is sent to the controller. maximum distances are given by normalized_pose_distances
+time_between_poses: 0.25
+
 #arm trajectory for folding the arm starting at a stretched arm pose given as sets of 5 arm joints
 trajectory_folding_arm: [0.0, 0.0, 0.0, 0.0, 0.0, -0.7, 1.9, 0.0, 1.7, 0.0]
 

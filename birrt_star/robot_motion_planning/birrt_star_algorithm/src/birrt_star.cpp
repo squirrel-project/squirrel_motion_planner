@@ -2310,7 +2310,7 @@ vector<double> BiRRTstarPlanner::getFullPoseFromEEPose(const vector<double> &end
 
   int trial_counter = 0;
   double initPoseDev = 0.02;
-  while (trial_counter < 20)
+  while (trial_counter < 100)
   {
     //Output joint and endeffector trajectory from controller
     vector<vector<double> > joint_trajectory;
@@ -2334,12 +2334,12 @@ vector<double> BiRRTstarPlanner::getFullPoseFromEEPose(const vector<double> &end
     {
       if (m_FeasibilityChecker->isConfigValid(joint_trajectory.back()))
         return joint_trajectory.back();
-      else
+      else if(trial_counter >= 100)
         return vector<double>(1);
     }
 
     ++trial_counter;
-    initPoseDev += 0.02;
+    initPoseDev += 0.002;
   }
 
   return vector<double>();

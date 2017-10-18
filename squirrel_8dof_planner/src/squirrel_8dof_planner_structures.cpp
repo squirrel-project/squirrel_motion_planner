@@ -1,4 +1,4 @@
-#include <squirrel_8dof_planner/squirrel_8dof_planner_structures.h>
+#include <squirrel_8dof_planner/squirrel_8dof_planner_structures.hpp>
 
 namespace SquirrelMotionPlanner
 {
