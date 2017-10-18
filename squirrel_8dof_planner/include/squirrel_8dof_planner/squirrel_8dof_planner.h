@@ -1,8 +1,6 @@
 #ifndef SQUIRREL_8DOF_PLANNER_H_
 #define SQUIRREL_8DOF_PLANNER_H_
 
-#include <squirrel_8dof_planner/squirrel_8dof_planner_structures.h>
-
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -31,6 +29,7 @@
 #include <octomap/octomap.h>
 #include <octomap_msgs/conversions.h>
 #include <octomap_server/OctomapServer.h>
+#include <squirrel_8dof_planner/squirrel_8dof_planner_structures.hpp>
 
 namespace SquirrelMotionPlanner
 {
@@ -55,13 +54,12 @@ class Planner
   ros::Publisher publisherGoalPose;     ///< ROS publisher. Publishes the found goal pose as a single 8dof pose.
   ros::Subscriber subscriberBase;     ///< ROS subscriber. Subscribes to /base/joint_angles.
   ros::Subscriber subscriberArm;     ///< ROS subscriber. Subscribes to /arm_controller/joint_states.
-  ros::Subscriber subscriberFoldArm;     ///< ROS subscriber. Subscribes to
   ros::Subscriber subscriberGoal;     ///< ROS subscriber. Subscribes to goal.
-  ros::Subscriber subscriberGoalMarkerExecute;     ///< ROS subscriber. Subscribes to goal_marker_execute.
-  ros::Subscriber subscriberPublishControlCommand;     ///< ROS subscriber. Subscribes to publish_control_command.
-  ros::ServiceClient serviceClientOctomap;     ///< ROS service client. Receives a full octomap from octomap_server_node.
   ros::ServiceServer serviceServerFoldArm;     ///< ROS service server. When called, sends a trajectory to the controller to fold the arm into the case.
+  ros::ServiceServer serviceServerSendControlCommand;     //<< ROS service server. When called, sends the latest trajectory to the controller.
   ros::ServiceServer serviceServerUnfoldArm;     ///< ROS service server. When called, sends a trajectory to the controller to unfold the arm.
+  ros::ServiceServer serviceServerGoalMarker;     ///< ROS service server. When called, plans a trajectory to the interactive marker position in rviz.
+  ros::ServiceClient serviceClientOctomap;     ///< ROS service client. Receives a full octomap from octomap_server_node.
   tf::TransformListener transformListener;
   interactive_markers::InteractiveMarkerServer interactiveMarkerServer;     ///< Server that commuincates with Rviz to receive 6D end effector poses.
   visualization_msgs::InteractiveMarker interactiveMarker;     ///< Interactive marker used by interactiveMarkerServer.
@@ -194,16 +192,18 @@ private:
   void subscriberGoalHandler(const std_msgs::Float64MultiArray &msg);
 
   /**
-   * @brief Used to signal a request for finding a trajectory to the current interactive marker pose for the endeffector.
-   * @param msg Emtpy message used only as a signal.
+   * @brief Service call that responds by planning to the interactive marker position in rviz.
+   * @param req Empty service request, contains no data.
+   * @param res Empty service response, contains no data.
    */
-  void subscriberGoalMarkerExecuteHandler(const std_msgs::Empty &msg);
+  bool serviceCallbackGoalMarker(std_srvs::EmptyRequest &req, std_srvs::EmptyResponse &res);
 
   /**
-   * @brief Used to signal a request for publishing the currently found trajectory to the controller.
-   * @param msg Emtpy message used only as a signal.
+   * @brief Service call that responds by sending the currently planned trajectory to the controller.
+   * @param req Empty service request, contains no data.
+   * @param res Empty service response, contains no data.
    */
-  void subscriberPublishControlCommandHandler(const std_msgs::Empty &msg);
+  bool serviceCallbackSendControlCommand(std_srvs::EmptyRequest &req, std_srvs::EmptyResponse &res);
 
   /**
    * @brief Service call that responds by sending a full 8dof trajectory to the controller that folds the arm.
@@ -261,7 +261,7 @@ private:
    * The trajectory is composed of folding the arm, driving close to poseGoal, and then move the arm to the final position.
    * @return True if a free trajectory could be found, returns false if either the 2D or the 8D search fails.
    */
-  void findTrajectoryFull();
+  bool findTrajectoryFull();
 
   /**
    * @brief Finds an 8D path using birrt star from the current arm pose to a folded position.
@@ -403,9 +403,16 @@ private:
 
   /**
    * @brief Checks if the arm is currently in the folded position.
-   * Compares elements 3-7 in poseCurrent with posesFolding.begin() and returns true if no joint deviates by more than 3 deg.
+   * Compares elements 3-7 in poseCurrent with posesFolding.front() and returns true if no joint deviates by more than 3 deg.
    */
   bool isArmFolded() const;
+
+  /**
+   * @brief Checks if the robot is still at the position of the initial trajectory pose.
+   * Compares all elemtns in poseCurrent with posesTrajectory.front()
+   * and returns true if no joint deviates by more than 3 deg and base position did not change more than 2cm.
+   */
+  bool isRobotAtTrajectoryStart() const;
 
   /**
    * @brief Copies 5D vector to last five elements of an 8D vector. Used for copying a vector with only arm joint angles to a full 8D pose.
@@ -414,9 +421,6 @@ private:
    */
   void copyArmToRobotPose(const std::vector<Real> &poseArm, std::vector<Real> &poseRobot);
 
-  /**
-   *
-   */
   void convertPose(const std::vector<Real> &posePrev, std::vector<Real> &poseTarget, const string &frameTarget, const string &frameOrigin) const;
 };
 

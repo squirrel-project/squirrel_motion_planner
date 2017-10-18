@@ -71,13 +71,17 @@ void Planner::initializeMessageHandling()
   publisherTrajectoryVisualizer = nhPrivate.advertise<std_msgs::Float64MultiArray>("robot_trajectory_multi_array", 10);
   publisherGoalPose = nhPrivate.advertise<std_msgs::Float64MultiArray>("robot_goal_pose", 10);
   publisherTrajectoryController = nh.advertise<trajectory_msgs::JointTrajectory>("/joint_trajectory_controller/command", 10);
+
   subscriberBase = nh.subscribe("/squirrel_2d_localizer/pose", 1, &Planner::subscriberBaseHandler, this);
   subscriberArm = nh.subscribe("/joint_states", 1, &Planner::subscriberArmHandler, this);
-  subscriberGoalMarkerExecute = nhPrivate.subscribe("goal_marker_execute", 1, &Planner::subscriberGoalMarkerExecuteHandler, this);
   subscriberGoal = nhPrivate.subscribe("goal", 1, &Planner::subscriberGoalHandler, this);
-  subscriberPublishControlCommand = nhPrivate.subscribe("publish_control_command", 1, &Planner::subscriberPublishControlCommandHandler, this);
-  serviceClientOctomap = nh.serviceClient<octomap_msgs::GetOctomap>("/octomap_full");
+
+  serviceServerGoalMarker = nh.advertiseService("find_interactive_marker_plan", &Planner::serviceCallbackGoalMarker, this);
+  serviceServerSendControlCommand = nh.advertiseService("send_trajectory_controller", &Planner::serviceCallbackSendControlCommand, this);
   serviceServerFoldArm = nh.advertiseService("fold_arm", &Planner::serviceCallbackFoldArm, this);
+  serviceServerUnfoldArm = nh.advertiseService("unfold_arm", &Planner::serviceCallbackUnfoldArm, this);
+
+  serviceClientOctomap = nh.serviceClient<octomap_msgs::GetOctomap>("/octomap_full");
 }
 
 void Planner::initializeAStarPlanning()
@@ -310,18 +314,6 @@ void Planner::subscriberArmHandler(const sensor_msgs::JointState &msg)
   poseCurrent[7] = msg.position[4];
 }
 
-void Planner::subscriberFoldArmHandler(const std_msgs::Empty &msg)
-{
-  posesTrajectory.clear();
-  if (!findTrajectoryFoldArm())
-  {
-    ROS_WARN("No 8D path could be found to the stretched position.");
-    return;
-  }
-
-  publishTrajectoryVisualizer();
-}
-
 void Planner::subscriberGoalHandler(const std_msgs::Float64MultiArray &msg)
 {
   if (msg.data.size() == 8)
@@ -352,20 +344,36 @@ void Planner::subscriberGoalHandler(const std_msgs::Float64MultiArray &msg)
         static_cast<UInt>(msg.data.size()));
 }
 
-void Planner::subscriberGoalMarkerExecuteHandler(const std_msgs::Empty &msg)
+bool Planner::serviceCallbackGoalMarker(std_srvs::EmptyRequest &req, std_srvs::EmptyResponse &res)
 {
   if (!serviceCallGetOctomap())
-    return;
+    return false;
 
   if (!findGoalPose(poseGoalMarker))
-    return;
+    return false;
 
-  findTrajectoryFull();
+  if (!findTrajectoryFull())
+    return false;
+
+  return true;
 }
 
-void Planner::subscriberPublishControlCommandHandler(const std_msgs::Empty &msg)
+bool Planner::serviceCallbackSendControlCommand(std_srvs::EmptyRequest &req, std_srvs::EmptyResponse &res)
 {
+  if (posesTrajectory.size() < 2)
+  {
+    ROS_WARN("Current trajectory size is too short.");
+    return false;
+  }
+
+  if (!isRobotAtTrajectoryStart())
+  {
+    ROS_WARN("The robot is no longer at the start of the trajectory. Replanning is necessary.");
+    return false;
+  }
+
   publishTrajectoryController();
+  return true;
 }
 
 bool Planner::serviceCallbackFoldArm(std_srvs::EmptyRequest &req, std_srvs::EmptyResponse &res)
@@ -383,13 +391,13 @@ bool Planner::serviceCallbackFoldArm(std_srvs::EmptyRequest &req, std_srvs::Empt
   poseTmp[1] = poseCurrent[1];
   poseTmp[2] = poseCurrent[2];
   copyArmToRobotPose(posesFolding.back(), poseTmp);
-  if (!findTrajectory8D(poseCurrent, poseGoal))
+  if (!findTrajectory8D(poseCurrent, poseTmp))
   {
     ROS_WARN("No 8D trajectory to the stretched arm position could be found.");
     return false;
   }
 
-  for (std::vector<std::vector<Real> >::reverse_iterator &it = posesFolding.rbegin(); it != posesFolding.rend(); ++it)
+  for (std::vector<std::vector<Real> >::reverse_iterator it = posesFolding.rbegin() + 1; it != posesFolding.rend(); ++it)
   {
     copyArmToRobotPose(*it, poseTmp);
     posesTrajectory.push_back(poseTmp);
@@ -411,7 +419,7 @@ bool Planner::serviceCallbackUnfoldArm(std_srvs::EmptyRequest &req, std_srvs::Em
 
   std::vector<Real> poseTmp = poseCurrent;
 
-  for (std::vector<std::vector<Real> >::iterator &it = posesFolding.begin(); it != posesFolding.end(); ++it)
+  for (std::vector<std::vector<Real> >::iterator it = posesFolding.begin(); it != posesFolding.end(); ++it)
   {
     copyArmToRobotPose(*it, poseTmp);
     posesTrajectory.push_back(poseTmp);
@@ -683,7 +691,6 @@ bool Planner::findGoalPose(const std::vector<Real> &poseEndEffector)
   endEffectorDeviations[5] = std::make_pair<Real, Real>(-0.025, 0.025);
 
   std::vector<Real> poseInitializer(8);
-  //copyArmToRobotPose(posesFolding.back(), poseInitializer);
   poseInitializer[0] = poseEndEffector[0];
   poseInitializer[1] = poseEndEffector[1];
   poseInitializer[2] = poseCurrent[2];
@@ -694,6 +701,7 @@ bool Planner::findGoalPose(const std::vector<Real> &poseEndEffector)
   poseInitializer[7] = 0.0;
 
   poseGoal = birrtStarPlanner.getFullPoseFromEEPose(poseEndEffector, endEffectorDeviations, poseInitializer);
+
   if (poseGoal.size() == 0)
   {
     ROS_WARN("No inverse kinematic solution could be found for the requested end effector pose.");
@@ -709,13 +717,13 @@ bool Planner::findGoalPose(const std::vector<Real> &poseEndEffector)
   return true;
 }
 
-void Planner::findTrajectoryFull()
+bool Planner::findTrajectoryFull()
 {
   const Cell2D goalCell = getCellFromPoint(Tuple2D(poseGoal[0], poseGoal[1]));
   if (occupancyMap[goalCell.x][goalCell.y])
   {
     ROS_WARN("The requested goal configuration is occupied. No plan could be found.");
-    return;
+    return false;
   }
 
   posesTrajectory.clear();
@@ -725,64 +733,28 @@ void Planner::findTrajectoryFull()
     if (!findTrajectory8D(poseCurrent, poseGoal))
     {
       ROS_WARN("No 8D path could be found to the requested goal pose.");
-      return;
+      return false;
     }
   }
   else
   {
-    if (!findTrajectoryFoldArm())
-    {
-      ROS_WARN("No 8D path could be found to the stretched position.");
-      return;
-    }
 
     if (!findTrajectory2D())
     {
       ROS_WARN("No 2D path could be found to the requested goal pose.");
-      return;
+      return false;
     }
-
-    findTrajectoryExtendArm();
 
     if (!findTrajectory8D(posesTrajectory.back(), poseGoal))
     {
       ROS_WARN("No 8D path could be found to the requested goal pose.");
-      return;
+      return false;
     }
   }
 
   publish2DPath();
   publishTrajectoryVisualizer();
-}
-
-bool Planner::findTrajectoryFoldArm()
-{
-  std::vector<Real> poseTmp(poseCurrent);
-  copyArmToRobotPose(posesFolding[0], poseTmp);
-
-  if (!findTrajectory8D(poseCurrent, poseTmp))
-    return false;
-
-  for (UInt i = 0; i < posesFolding.size(); ++i)
-  {
-    posesTrajectory.push_back(poseCurrent);
-    copyArmToRobotPose(posesFolding[i], posesTrajectory.back());
-  }
-
-  indexLastFolding = posesTrajectory.size() - 1;
-
   return true;
-}
-
-void Planner::findTrajectoryExtendArm()
-{
-  std::vector<Real> poseLast(posesTrajectory.back());
-
-  for (UInt i = posesFolding.size() - 1; i >= 0; --i)
-  {
-    posesTrajectory.push_back(poseLast);
-    copyArmToRobotPose(posesFolding[i], posesTrajectory.back());
-  }
 }
 
 bool Planner::findTrajectory2D()
@@ -824,7 +796,7 @@ bool Planner::findTrajectory8D(const std::vector<Real> &poseStart, const std::ve
 
   std::vector<std::vector<Real> > &trajectoryBirrtStar = birrtStarPlanner.getJointTrajectoryRef();
 
-  for (UInt i = 1; i < trajectoryBirrtStar.size(); ++i)
+  for (UInt i = 0; i < trajectoryBirrtStar.size(); ++i)
     posesTrajectory.push_back(trajectoryBirrtStar[i]);
 
   ++birrtStarPlanningNumber;
@@ -1213,9 +1185,20 @@ inline void Planner::updateFCost(AStarNode &node) const
 
 inline bool Planner::isArmFolded() const
 {
-  if (fabs(poseCurrent[3] - posesFolding.begin()[0] > 0.05236) || fabs(poseCurrent[4] - posesFolding.begin()[1] > 0.05236)
-      || fabs(poseCurrent[5] - posesFolding.begin()[2] > 0.05236) || fabs(poseCurrent[6] - posesFolding.begin()[3] > 0.05236)
-      || fabs(poseCurrent[7] - posesFolding.begin()[4] > 0.05236))
+  if (fabs(poseCurrent[3] - posesFolding.front()[0] > 0.05236) || fabs(poseCurrent[4] - posesFolding.front()[1] > 0.05236)
+      || fabs(poseCurrent[5] - posesFolding.front()[2] > 0.05236) || fabs(poseCurrent[6] - posesFolding.front()[3] > 0.05236)
+      || fabs(poseCurrent[7] - posesFolding.front()[4] > 0.05236))
+    return false;
+
+  return true;
+}
+
+inline bool Planner::isRobotAtTrajectoryStart() const
+{
+  if (fabs(poseCurrent[0] - posesTrajectory.front()[0] > 0.02) || fabs(poseCurrent[1] - posesTrajectory.front()[1] > 0.02)
+      || fabs(poseCurrent[2] - posesTrajectory.front()[2] > 0.05236) || fabs(poseCurrent[3] - posesTrajectory.front()[3] > 0.05236)
+      || fabs(poseCurrent[4] - posesTrajectory.front()[4] > 0.05236) || fabs(poseCurrent[5] - posesTrajectory.front()[5] > 0.05236)
+      || fabs(poseCurrent[6] - posesTrajectory.front()[6] > 0.05236) || fabs(poseCurrent[7] - posesTrajectory.front()[7] > 0.05236))
     return false;
 
   return true;

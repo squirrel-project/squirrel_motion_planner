@@ -41,10 +41,8 @@
     <rosparam command="load" file="$(find squirrel_8dof_planner)/config/parameters.yaml" />
     <param name="robot_description" textfile="$(find squirrel_8dof_planner)/config/robotino_plan.urdf"/>
     <param name="robot_description_semantic" textfile="$(find squirrel_8dof_planner)/config/robotino_plan.srdf"/>
-    <param name="robot_description_vis" textfile="$(find squirrel_8dof_planner)/config/robotino_plan_vis.urdf"/>
     <include file="$(find squirrel_8dof_planner)/launch/move_group.launch"/>
     <group if="$(arg planner)">
-
       <node name="squirrel_8dof_planner_node" pkg="squirrel_8dof_planner" type="squirrel_8dof_planner_node" output="screen"/>
     </group>
     <node name="squirrel_8dof_visualizer_node" pkg="squirrel_8dof_visualizer" type="squirrel_8dof_visualizer_node"/>
