@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot" default="tuw-robotino2"/>
+  <arg name="planning_ns" default="squirrel_8dof_planning"/>
+
+  <param name="ns_prefix_robot" value="/$(arg planning_ns)/"/>
+  <param name="robot_description_robot" value="/$(arg planning_ns)/robot_description"/>
+  <rosparam command="load" file="$(find planner_param_config)/planner_config/planner_parameters_robotino.yaml"/>
+  
+  <group ns="$(arg planning_ns)">
+    <rosparam command="load" file="$(find squirrel_8dof_planner)/config/parameters.yaml" />
+    <rosparam command="load" file="$(find squirrel_8dof_planner)/config/folding_poses_$(arg robot).yaml" />
+    <param name="robot_description" textfile="$(find squirrel_8dof_planner)/config/robotino_plan.urdf"/>
+    <param name="robot_description_semantic" textfile="$(find squirrel_8dof_planner)/config/robotino_plan.srdf"/>
+    <node name="squirrel_8dof_planner_node" pkg="squirrel_8dof_planner" type="squirrel_8dof_planner_node" output="screen"/>
+    <node name="squirrel_8dof_visualizer_node" pkg="squirrel_8dof_visualizer" type="squirrel_8dof_visualizer_node" output="screen"/>
+  </group>
+
+</launch>
