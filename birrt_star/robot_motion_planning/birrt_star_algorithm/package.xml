@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<package>
+  <name>birrt_star_algorithm</name>
+  <version>0.0.0</version>
+  <description>The birrt_star_algorithm package</description>
+
+  <maintainer email="burgetf@informatik.uni-freiburg.de">Felix Burget</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>kuka_motion_control</build_depend>
+  <build_depend>planner_data_structures</build_depend>
+  <build_depend>planning_heuristics</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>fcl</build_depend>
+  <build_depend>kdl_parser</build_depend>
+  <build_depend>orocos_kdl</build_depend>
+  <build_depend>octomap</build_depend>
+  <build_depend>octomap_msgs</build_depend>
+  <build_depend>octomap_server</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>moveit_ros_planning</build_depend>
+  <build_depend>tf</build_depend>
+
+  <run_depend>kuka_motion_control</run_depend>
+  <run_depend>planner_data_structures</run_depend>
+  <run_depend>planning_heuristics</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>fcl</run_depend>
+  <run_depend>kdl_parser</run_depend>
+  <run_depend>orocos_kdl</run_depend>
+  <run_depend>octomap</run_depend>
+  <run_depend>octomap_msgs</run_depend>
+  <run_depend>octomap_server</run_depend>
+  <run_depend>visualization_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>moveit_ros_planning</run_depend>
+  <run_depend>tf</run_depend>
+
+</package>

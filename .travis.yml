@@ -6,6 +6,7 @@ language: generic
 env:
   global:
     - ROS_DISTRO="indigo"
+    - UPSTREAM_WORKSPACE=file
 install:
   - git clone --depth=1 https://github.com/ros-industrial/industrial_ci.git .ci_config
 script:

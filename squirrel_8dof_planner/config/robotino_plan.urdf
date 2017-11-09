@@ -1,0 +1,815 @@
+<?xml version="1.0" ?>
+<robot name="robotino" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <link name="base_link_origin">
+    <visual>
+      <geometry>
+        <sphere radius="0.0"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 0.8 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="base_x_joint" type="prismatic">
+    <parent link="base_link_origin"/>
+    <child link="base_x_link"/>
+    <limit effort="1000.0" lower="-100.0" upper="100.0" velocity="0.5"/> 
+    <axis xyz="1 0 0"/>
+  </joint>
+  <link name="base_x_link">
+    <visual>
+      <geometry>
+        <sphere radius="0.0"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 0.8 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="base_y_joint" type="prismatic">
+    <parent link="base_x_link"/>
+    <child link="base_y_link"/>
+    <limit effort="1000.0" lower="-100.0" upper="100.0" velocity="0.5"/> 
+    <axis xyz="0 1 0"/>
+  </joint>
+  <link name="base_y_link">
+    <visual>
+      <geometry>
+        <sphere radius="0.0"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 0.8 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="base_theta_joint" type="continuous">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="base_y_link"/>
+    <child link="base_theta_link"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="base_theta_link">
+    <visual>
+      <geometry>
+        <sphere radius="0.0"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 0.8 1.0"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="base_link_joint" type="fixed">
+    <parent link="base_theta_link"/>
+    <child link="base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <inertial>
+      <mass value="10"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="75.0" ixy="0.0" ixz="0.0" iyy="75.0" iyz="0.0" izz="75.0"/>
+    </inertial>
+  </link>
+
+  <joint name="base_body_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_body_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <link name="base_body_link">
+    <inertial>
+      <mass value="10"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="75.0" ixy="0.0" ixz="0.0" iyy="75.0" iyz="0.0" izz="75.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.01 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/RobotinoBody.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.01 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/RobotinoBody.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="shell_base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="shell_base_link"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+  </joint>
+  <link name="shell_base_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 -0.06"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/base_shell.stl"/>
+      </geometry>
+      <material name="lightGrey">
+        <color rgba="0.9 0.9 0.9 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/base_shell_collision.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="base_neck_joint" type="fixed">
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.676"/>
+    <parent link="base_link"/>
+    <child link="base_neck_link"/>
+  </joint>
+  <link name="base_neck_link">
+    <inertial>
+      <mass value="0.00001"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="Black"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="neck_pan_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="base_neck_link"/>
+    <child link="neck_pan_link"/>
+    <axis xyz="0 0 -1"/>
+    <calibration rising="0.1"/>
+    <limit effort="100" lower="-3.14" upper="3.14" velocity="1.4"/>
+  </joint>
+  <link name="neck_pan_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/neck.stl"/>
+      </geometry>
+      <material name="lightGrey">
+        <color rgba="0.9 0.9 0.9 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.08" radius="0.2"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="neck_tilt_joint" type="revolute">
+    <origin rpy="1.57 0 0" xyz="0.192 0 0"/>
+    <parent link="neck_pan_link"/>
+    <child link="neck_tilt_link"/>
+    <axis xyz="0 0 1"/>
+    <calibration rising="0.1"/>
+    <limit effort="100" lower="-1.19" upper="0.52" velocity="1.4"/>
+  </joint>
+  <link name="neck_tilt_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="head_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0.715"/>
+    <parent link="base_link"/>
+    <child link="head_link"/>
+    <axis xyz="0 0 -1"/>
+    <calibration rising="0.1"/>
+    <limit effort="100" lower="-3.14" upper="3.14" velocity="1.4"/>
+  </joint>
+  <link name="head_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/head.stl"/>
+      </geometry>
+      <material name="lightGrey">
+        <color rgba="0.9 0.9 0.9 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.125"/>
+      <geometry>
+        <cylinder length="0.25" radius="0.23"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hokuyo_joint" type="fixed">
+    <origin rpy="0.0 0.0 -0.015" xyz="0.184 0.004 0.1"/>
+    <parent link="base_link"/>
+    <child link="hokuyo_link"/>
+  </joint>
+  <link name="hokuyo_link">
+    <inertial>
+      <mass value="0.00001"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 1.570795" xyz="0 0 -0.05"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/hokuyo.dae" scale="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.035"/>
+      <geometry>
+        <cylinder length="0.07" radius="0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="arm_base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="arm_base_link"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0.0 0.0 -1" xyz="0.0 -0.01591 0.25"/>
+  </joint>
+  <link name="arm_base_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link0.stl"/>
+      </geometry>
+      <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+      <origin rpy="0 0 0" xyz="0 0 0."/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0."/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link0_collision.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="arm_joint1" type="revolute">
+    <parent link="arm_base_link"/>
+    <child link="arm_link1"/>
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+    <axis xyz="0 -1 0"/>
+    <!--limit effort="190" lower="-1.2" upper="1.5" velocity="30"/-->
+    <limit effort="190" lower="-1.2" upper="-0.55" velocity="30"/>
+  </joint>
+  <link name="arm_link1">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link1.stl"/>
+      </geometry>
+      <material name="white"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link1_collision.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="arm_joint2" type="revolute">
+    <parent link="arm_link1"/>
+    <child link="arm_motor2"/>
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.25"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="190" lower="-1.7" upper="2.6" velocity="30"/>
+  </joint>
+  <link name="arm_motor2">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0 0 0"/>
+      </geometry>
+      <material name="white"/>
+      <origin rpy="0 0 0" xyz="0 0.0625 0."/>
+    </visual>
+  </link>
+  <joint name="fixed_motor2_link2" type="fixed">
+    <parent link="arm_motor2"/>
+    <child link="arm_link2"/>
+    <origin rpy="0 0 0" xyz="0.0 0.098 0.027"/>
+  </joint>
+  <link name="arm_link2">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link2.stl"/>
+      </geometry>
+      <material name="white"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link2_collision.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="arm_joint3" type="revolute">
+    <parent link="arm_link2"/>
+    <child link="arm_link3"/>
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.158"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="190" lower="-1.8" upper="1.8" velocity="30"/>
+  </joint>
+  <link name="arm_link3">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link3.stl"/>
+      </geometry>
+      <material name="white"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link3_collision.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="arm_joint4" type="revolute">
+    <parent link="arm_link3"/>
+    <child link="arm_link4"/>
+    <origin rpy="0 0 0" xyz="0.0 -0.057 0.065"/>
+    <axis xyz="0 -1 0"/>
+    <limit effort="160" lower="-2.4" upper="2.4" velocity="30"/>
+  </joint>
+  <link name="arm_link4">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link4.stl"/>
+      </geometry>
+      <material name="white"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/arm/link4_collision.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="arm_joint5" type="revolute">
+    <parent link="arm_link4"/>
+    <child link="arm_link5"/>
+    <origin rpy="0 0 0" xyz="0.0 -0.027 0.035"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="160" lower="-2.9" upper="2.9" velocity="30"/>
+  </joint>
+  <link name="arm_link5">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="hand_wrist_joint" type="fixed">
+    <origin rpy="1.5707963 0 0" xyz="0 0 0"/>
+    <parent link="arm_link5"/>
+    <child link="hand_wrist_link"/>
+  </joint>
+  <link name="hand_wrist_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/wrist.stl"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/wrist.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_palm_joint" type="fixed">
+    <origin rpy="-1.5708 0 0" xyz="-0.02105 0.2485 0"/>
+    <!--palm_link.y(0.2485) = base_link.y(0.1485) + 0.1m-->
+    <parent link="hand_wrist_link"/>
+    <child link="hand_palm_link"/>
+  </joint>
+  <link name="hand_palm_link"/>
+  <joint name="hand_base_joint" type="fixed">
+    <origin rpy="0 0.52 0" xyz="-0.02105 0.1485 0"/>
+    <parent link="hand_wrist_link"/>
+    <child link="hand_base_link"/>
+  </joint>
+  <link name="hand_base_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/base_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/base_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_middle_finger_lower_joint" type="continuous">
+    <origin rpy="-0.5236 5.5511E-17 1.5708" xyz="0.035507 0.02 0.0205"/>
+    <parent link="hand_base_link"/>
+    <child link="hand_middle_finger_lower_link"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
+  <link name="hand_middle_finger_lower_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/middle_finger_lower_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/middle_finger_lower_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_middle_finger_upper_joint" type="continuous">
+    <origin rpy="0 0 0.7854" xyz="0.05 0 0"/>
+    <parent link="hand_middle_finger_lower_link"/>
+    <child link="hand_middle_finger_upper_link"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="hand_middle_finger_upper_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/middle_finger_upper_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/middle_finger_upper_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_left_crank_base_joint" type="continuous">
+    <origin rpy="-2.1588 0.44783 -1.8518" xyz="0 0 0"/>
+    <parent link="hand_base_link"/>
+    <child link="hand_left_crank"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="hand_left_crank">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/left_crank.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/left_crank.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_left_coupler_crank_joint" type="continuous">
+    <origin rpy="0.40154 0.63113 0.62376" xyz="0 0 0"/>
+    <parent link="hand_left_crank"/>
+    <child link="hand_left_coupler"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="hand_left_coupler">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/left_coupler.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/left_coupler.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_left_finger_lower_joint" type="continuous">
+    <origin rpy="-1.2217 -7.6328E-17 1.5708" xyz="0.016246 0.021 0.044635"/>
+    <parent link="hand_left_coupler"/>
+    <child link="hand_left_finger_lower_link"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
+  <link name="hand_left_finger_lower_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/left_finger_lower_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/left_finger_lower_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_left_finger_upper_joint" type="continuous">
+    <origin rpy="-1.5543E-15 7.7716E-16 0.7854" xyz="0.05 0 0"/>
+    <parent link="hand_left_finger_lower_link"/>
+    <child link="hand_left_finger_upper_link"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="hand_left_finger_upper_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/left_finger_upper_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/left_finger_upper_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_right_crank_base_joint" type="continuous">
+    <origin rpy="-5.5511E-17 -2.7756E-17 1.0472" xyz="0 0 0"/>
+    <parent link="hand_base_link"/>
+    <child link="hand_right_crank"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="hand_right_crank">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/right_crank.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/right_crank.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_right_coupler_crank_joint" type="continuous">
+    <origin rpy="0.40154 -0.63113 -0.62376" xyz="0 0 0"/>
+    <parent link="hand_right_crank"/>
+    <child link="hand_right_coupler"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="hand_right_coupler">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/right_coupler.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/right_coupler.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_right_finger_lower_joint" type="continuous">
+    <origin rpy="-1.9199 -2.047E-16 1.5708" xyz="-0.016246 0.021 0.044635"/>
+    <parent link="hand_right_coupler"/>
+    <child link="hand_right_finger_lower_link"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="hand_right_finger_lower_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/right_finger_lower_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/right_finger_lower_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_right_finger_upper_joint" type="continuous">
+    <origin rpy="4.4409E-16 -2.9143E-16 0.7854" xyz="0.05 0 0"/>
+    <parent link="hand_right_finger_lower_link"/>
+    <child link="hand_right_finger_upper_link"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="hand_right_finger_upper_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/right_finger_upper_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/right_finger_upper_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hand_cableCanal_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.07 0.06 0"/>
+    <parent link="hand_wrist_link"/>
+    <child link="hand_cableCanal_link"/>
+  </joint>
+  <link name="hand_cableCanal_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.0 0.0 0.0"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://robotino_description/meshes/kclhand/cableCanalCollision.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="kinect_joint" type="fixed">
+    <origin rpy="-1.57 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    <parent link="neck_tilt_link"/>
+    <child link="kinect_link"/>
+  </joint>
+  <link name="kinect_link">
+    <inertial>
+      <mass value="0.00001"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.035 0.18 0.02"/>
+      </geometry>
+      <material name="Grey"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.035  0.18 0.02"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>
+
