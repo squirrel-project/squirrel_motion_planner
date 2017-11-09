@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package>
+  <name>rviz_robot_marker</name>
+  <version>1.0.5</version>
+  <description>Sends a robot model with a given joint pose as a visualization marker to RViz</description>
+
+  <maintainer email="sosswald@cs.uni-bonn.de">Stefan Osswald</maintainer>
+
+  <license>BSD</license>
+  <author email="sosswald@cs.uni-bonn.de">Stefan Osswald</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>kdl_parser</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>tf_conversions</build_depend>
+  <build_depend>urdf</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <run_depend>kdl_parser</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>tf_conversions</run_depend>
+  <run_depend>urdf</run_depend>
+  <run_depend>visualization_msgs</run_depend>
+
+  
+</package>
