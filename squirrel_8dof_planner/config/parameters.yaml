@@ -1,0 +1,38 @@
+#limits in z direction between which the occupancy map is generated from the octomap
+#should be set from floor to the maximum height the robot could possibly reach
+occupancy_height_min: 0.0
+occupancy_height_max: 2.0
+
+#min distance (in m) to obstacles during astar planning
+#not considered during path smoothing, should therefore be a bit higher than robot radius
+astar_safety_distance: 0.3
+
+#factor that indicates the corner smoothing of the 2d path
+#should lie between 1.5 and 2.5; small values indicate no smoothing
+#too large values (higher than 3.0) can lead to unwanted loops at tight corners
+astar_smoothing_factor: 2.0
+
+#distance (in m) to corners that is used for smoothing; larger value leads to larger corner arcs
+#as no collision checks are performed during smoothing, this value should not be too large
+astar_smoothing_distance: 0.3
+
+#approx. distance (in m) between base poses generated after smoothing astar path 
+astar_final_smoothed_point_distance: 0.03
+
+#distance in meters around the robot, to which a floor at z=0 is added
+#to avoid collisions between the arm and the floor
+floor_collision_distance: 3.0
+
+#appox. maximal distance (in m) to final base pose, from where actual 8dof planning starts
+distance_birrt_star_planning: 10.0
+
+#pose (in rad) of folded arm during execution of 2d path
+#those poses are added to base poses for the part of the plan that is computed with astar
+pose_folded_arm: [-0.7, 1.9, 0.0, 1.7, 0.0]
+
+#once a trajectory is found, it is normalized such that at least one of the 8dof has a distance
+#to the previous pose given by these values and all other dofs are below
+normalized_pose_distances: [0.02, 0.02, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08]
+
+#time between poses that is sent to the controller. maximum distances are given by normalized_pose_distances
+time_between_poses: 0.25
